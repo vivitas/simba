@@ -88,7 +88,32 @@ def monom_division(P, Q):
     return ([0], result);
 
 def add(P, Q):
-    pass;
+    deg_r = max(get_degree(P), get_degree(Q))
+    R = create_poly_of_degree(deg_r)
+    for i in range(0, get_degree(P) + 1):
+        R[i] = P[i]
+    for i in range(0, get_degree(Q) + 1):
+        R[i] += Q[i]
+    return R
+
+def substract(P, Q):
+    deg_r = max(get_degree(P), get_degree(Q))
+    R = create_poly_of_degree(deg_r)
+    for i in range(0, get_degree(P) + 1):
+        R[i] = P[i]
+    for i in range(0, get_degree(Q) + 1):
+        R[i] -= Q[i]
+    return R
+
+def multiply(P, Q):
+    deg_r = get_degree(P) + get_degree(Q)
+    R = create_poly_of_degree(deg_r)
+
+    for i in range(0, get_degree(P) + 1):
+        for j in range(0, get_degree(Q) + 1):
+            R[i+j] += P[i] * Q[j]
+
+    return R
 
 def get_remainder_quotient(P, Q):
 	if (monom(P) and monom(Q)):
@@ -97,8 +122,8 @@ def get_remainder_quotient(P, Q):
 	R = P
 	while (not is_zero(R) and leading_terms_divisible(R, Q)):
 		(rem, coef) = get_remainder_quotient(get_leading_term(R), get_leading_term(Q))
-		B = add(coef, B);
-		R -= multiply(Q, coef)
+		B = add(coef, B)
+		R = substract(R, multiply(Q, coef))
 	return (B, R)
 
 def find_gcd(first, second):
