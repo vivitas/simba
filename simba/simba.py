@@ -31,7 +31,6 @@ def same(first, second):
 	if (len(first) != len (second)):
 		return False
 	for (x, y) in zip(first, second):
-		print(x, y)
 		if (x != y):
 			return False
 	return True
@@ -124,15 +123,16 @@ def get_remainder_quotient(P, Q):
 		(rem, coef) = get_remainder_quotient(get_leading_term(R), get_leading_term(Q))
 		B = add(coef, B)
 		R = substract(R, multiply(Q, coef))
-	return (B, R)
+	return (R, B)
 
 def find_gcd(first, second):
 	a = first
 	b = second
 	if (not first_is_greater(a, b)):
 		(a, b) = (b, a)
-	while (not same(a, b)):
-		(q, r) = get_remainder_quotient(a, b)
+	while (not same(a, b) and not is_zero(b)):
+		(r, q) = get_remainder_quotient(a, b)
+		(a, b) = (b, r);
 	return a
 
 def main():
