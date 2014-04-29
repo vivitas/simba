@@ -135,9 +135,14 @@ def find_gcd(first, second):
 		(a, b) = (b, r);
 	return a
 
+def find_multi_gcd(poly_list):
+    return reduce(find_gcd, poly_list)
+
 def main():
-	poly_print(find_gcd(poly1, poly2))
-	poly_print(find_gcd(poly2, poly3))
-	poly_print(find_gcd(poly3, poly1))
+    poly_print(find_gcd(poly1, poly2))
+    poly_print(find_gcd(poly2, poly3))
+    poly_print(find_gcd(poly3, poly1))
+    poly_print(find_multi_gcd([poly1, poly2, poly3]))
+
 if (__name__=='__main__'):
 	main()
