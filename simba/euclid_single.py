@@ -20,17 +20,21 @@ def poly_print(poly):
 	print
 
 def first_is_greater(a, b):
-	if (len(a) != len(b)):
-		return len(a) > len(b)
-	for (member_a, member_b) in zip(a, b)[::-1]:
+	deg_a = get_degree(a)
+	deg_b = get_degree(b)
+	if (deg_a != deg_b):
+		return deg_a > deg_b
+	for (member_a, member_b) in reversed(zip(a[0:deg_a+1], b[0:deg_b+1])):
 		if (member_a != member_b):
 			return member_a > member_b
 	return False
 
-def same(first, second):
-	if (len(first) != len (second)):
-		return False
-	for (x, y) in zip(first, second):
+def same(a, b):
+	deg_a = get_degree(a)
+	deg_b = get_degree(b)
+	if (deg_a != deg_b):
+		return deg_a > deg_b
+	for (x, y) in zip(a[0:deg_a+1], b[0:deg_b+1]):
 		if (x != y):
 			return False
 	return True
@@ -134,6 +138,7 @@ def find_gcd(first, second):
 		(r, q) = get_remainder_quotient(a, b)
 		(a, b) = (b, r);
 	return a
+
 
 def main():
 	poly_print(find_gcd(poly1, poly2))
