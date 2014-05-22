@@ -5,13 +5,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>e759ba6a-3d4e-4ec2-8ea2-d046e8d668c7</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>simba.py</StartupFile>
+    <StartupFile>multi_poly.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>simba</Name>
     <RootNamespace>simba</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
