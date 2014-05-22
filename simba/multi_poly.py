@@ -2,6 +2,8 @@ import string
 import copy
 
 K_NAME_FOR_CONSTANT = " "
+K_ZERO_MONOM = {}
+K_ZERO_POLY = [K_ZERO_MONOM]
 
 def lex_common(first_monom, second_monom, variable_order):
 	for variable in variable_order:
@@ -22,6 +24,8 @@ def inverse_lex_compare(first_monom, second_monom):
 	return lex_common(first_monom, second_monom, reversed(string.ascii_letters))
 
 def constant(monom):
+	if monom == K_ZERO_MONOM:
+		return 0;
 	if K_NAME_FOR_CONSTANT in monom:
 		return monom[K_NAME_FOR_CONSTANT]
 	return 1
@@ -43,7 +47,7 @@ def multiorder(monom, all_degrees=False):
 	return result
 
 def same(first_monom, second_monom, constant_matter=True):
-	return multiorder(first_monom) == multiorder(second_monom) and (not constant_matter or (constant(first_monom) == constant(second_monom)))
+	return multiorder(first_monom, True) == multiorder(second_monom, True) and (not constant_matter or (constant(first_monom) == constant(second_monom)))
 
 def grad_compare(first_monom, second_monom):
 	first_order = sum(multiorder(first_monom))
@@ -116,6 +120,11 @@ def print_poly(poly, new_line=False, print_sorted=True):
 	if new_line:
 		print
 
+def leading_term(poly, order):
+	tmp = copy.deepcopy(poly);
+	tmp.sort(cmp=order);
+	return tmp[0]
+
 monom1 = {};
 monom2 = {};
 monom3 = {};
@@ -140,5 +149,7 @@ poly1 = [monom1, monom2, monom3, monom4];
 poly2 = [monom1, monom2, monom3];
 print_poly(poly1, True, True)
 print_poly(poly2, True, True)
-print_poly(add(poly1, poly2), True, True)
-print_poly(minus(poly1, poly2), True, True)
+print
+print_monome(leading_term(poly1, lex_compare), True, True)
+print_monome(leading_term(poly1, inverse_lex_compare), True, True)
+print_monome(leading_term(poly1, grad_compare), True, True)
