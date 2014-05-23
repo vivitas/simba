@@ -3,7 +3,7 @@ import copy
 
 K_NAME_FOR_CONSTANT = " "
 K_ZERO_MONOM = {}
-K_ZERO_POLY = [K_ZERO_MONOM]
+K_ZERO_POLY = []
 
 def lex_common(first_monom, second_monom, variable_order):
 	for variable in variable_order:
@@ -105,10 +105,14 @@ def poly_update(poly):
 	updated = []
 	for monom in poly:
 		if constant(monom) != 0:
-			updated.append(copy.deepcopy(monom))
+			if (sum(multiorder(monom)) == 0):
+				updated = add(updated, [{K_NAME_FOR_CONSTANT:constant(monom)}])
+			else:
+				updated.append(copy.deepcopy(monom))
 	return updated
 
 def print_poly(poly, new_line=False, print_sorted=True):
+	poly = poly_update(poly)
 	first = True
 	for monom in poly:
 		if (first):
@@ -126,8 +130,10 @@ def order_of(monom, variable):
 	return monom[variable]
 
 def leading_term(poly, order):
+	if len(poly) == 0:
+		return copy.deepcopy(K_ZERO_MONOM)
 	tmp = copy.deepcopy(poly);
-	tmp.sort(cmp=order);
+	tmp.sort(cmp=order)
 	return tmp[0]
 
 def monom_multiply(monom_a, monom_b):
@@ -152,29 +158,83 @@ def poly_multiply(poly_a, poly_b):
 		result = add(result, poly_monom_multiply(monom_in_a, poly_b))
 	return result
 
+def divides(monom_a, monom_b):
+	for variable in monom_b:
+		if variable == K_NAME_FOR_CONSTANT:
+			continue
+		if variable not in monom_a:
+			return False
+		if monom_a[variable] < monom_b[variable]:
+			return False
+	return True
+
+def monom_divide(monom_a, monom_b):
+	result = copy.deepcopy(K_ZERO_MONOM)
+	for variable in monom_a:
+		if variable == K_NAME_FOR_CONSTANT:
+			result[variable] = monom_a[variable] / constant(monom_b)
+		else:
+			result[variable] = monom_a[variable] - order_of(monom_b, variable)
+	return result
+
+def poly_divide(poly, poly_list, order=lex_compare):
+	quotient = [copy.deepcopy(K_ZERO_POLY)] * len(poly_list)
+	remainder = copy.deepcopy(K_ZERO_POLY)
+	h = copy.deepcopy(poly)
+
+	while (h != K_ZERO_POLY):
+		changed = False;		
+		
+		h_leading_term = leading_term(h, order)
+		
+		for index in range(len(poly_list)):
+			fi_leading_term = leading_term(poly_list[index], order)
+
+			if divides(h_leading_term, fi_leading_term):
+				changed = True
+				tmp = monom_divide(h_leading_term, fi_leading_term)
+				quotient[index] = add(quotient[index], [tmp])
+				h = minus(h, poly_monom_multiply(tmp, poly_list[index]))
+				break
+		if not changed:
+			remainder = add(remainder, [h_leading_term])
+			h = minus(h, [h_leading_term])
+	return (quotient, remainder)
+
 monom1 = {};
 monom2 = {};
 monom3 = {};
 monom4 = {};
 
-monom1[K_NAME_FOR_CONSTANT] = 1
-monom1["x"] = 3
-monom1["y"] = 100
+monom1["x"] = 2
+monom1["y"] = 1
 
-monom2["x"] = 2
-monom2["z"] = 1
+monom2["x"] = 1
+monom2["y"] = 2
 
-monom3["y"] = 1
-monom3["z"] = 2
+monom3["y"] = 2
 
 monom4[K_NAME_FOR_CONSTANT] = 8
 monom4["x"] = 1
 monom4["y"] = 2
 monom4["z"] = 3
 
+polinom_f  = [ {"x":2, "y":1}, {"x":1, "y":2},          {"y":2} ]
+polinom_f1 = [ {"x":1, "y":1}, {K_NAME_FOR_CONSTANT:-1} ]
+polinom_f2 = [ {"y":2},        {K_NAME_FOR_CONSTANT:-1} ]
+
 poly1 = [monom1, monom2];
 poly2 = [monom1, monom2];
-print_poly(poly1, True, True)
-print_poly(poly2, True, True)
+#print_poly(poly1, True, True)
+#print_poly(poly2, True, True)
+print_poly(polinom_f, True)
+print_poly(polinom_f1, True)
+print_poly(polinom_f2, True)
 print
-print_poly(poly_multiply(poly1, poly2), True, True)
+(quotients, remainder) = poly_divide(polinom_f, [polinom_f1, polinom_f2], order=lex_compare)
+
+def print_poly_simple(poly):
+	print_poly(poly, True, False)
+
+map(print_poly_simple, quotients)
+print_poly(remainder, True, False)
