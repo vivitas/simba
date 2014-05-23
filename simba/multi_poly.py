@@ -120,10 +120,37 @@ def print_poly(poly, new_line=False, print_sorted=True):
 	if new_line:
 		print
 
+def order_of(monom, variable):
+	if variable not in monom:
+		return 0
+	return monom[variable]
+
 def leading_term(poly, order):
 	tmp = copy.deepcopy(poly);
 	tmp.sort(cmp=order);
 	return tmp[0]
+
+def monom_multiply(monom_a, monom_b):
+	result = copy.deepcopy(K_ZERO_MONOM)
+	for variable in string.ascii_letters:
+		to_add = order_of(monom_a, variable) + order_of(monom_b, variable)
+		if to_add == 0:
+			continue
+		result[variable] = to_add;
+	result[K_NAME_FOR_CONSTANT] = constant(monom_a) * constant(monom_b)
+	return result
+
+def poly_monom_multiply(monom, poly):
+	result = copy.deepcopy(K_ZERO_POLY)
+	for monom_in_poly in poly:
+		result = add([monom_multiply(monom, monom_in_poly)], result)
+	return result
+
+def poly_multiply(poly_a, poly_b):
+	result = copy.deepcopy(K_ZERO_POLY)
+	for monom_in_a in poly_a:
+		result = add(result, poly_monom_multiply(monom_in_a, poly_b))
+	return result
 
 monom1 = {};
 monom2 = {};
@@ -145,11 +172,9 @@ monom4["x"] = 1
 monom4["y"] = 2
 monom4["z"] = 3
 
-poly1 = [monom1, monom2, monom3, monom4];
-poly2 = [monom1, monom2, monom3];
+poly1 = [monom1, monom2];
+poly2 = [monom1, monom2];
 print_poly(poly1, True, True)
 print_poly(poly2, True, True)
 print
-print_monome(leading_term(poly1, lex_compare), True, True)
-print_monome(leading_term(poly1, inverse_lex_compare), True, True)
-print_monome(leading_term(poly1, grad_compare), True, True)
+print_poly(poly_multiply(poly1, poly2), True, True)
