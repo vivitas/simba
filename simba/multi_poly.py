@@ -5,6 +5,9 @@ K_NAME_FOR_CONSTANT = " "
 K_ZERO_MONOM = {}
 K_ZERO_POLY = []
 
+'''
+Common code used by both lex_compare and inverse_lex_compare
+'''
 def lex_common(first_monom, second_monom, variable_order):
 	for variable in variable_order:
 		if variable in first_monom and variable not in second_monom:
@@ -17,12 +20,26 @@ def lex_common(first_monom, second_monom, variable_order):
 			return second_monom[variable]-first_monom[variable]
 	return 0
 
+'''
+Comparator function used to sort monomials in lex order
+'''
 def lex_compare(first_monom, second_monom):
 	return lex_common(first_monom, second_monom, string.ascii_letters)
 
+'''
+Comparator function used to sort monomials in inverse lex order.
+'''
 def inverse_lex_compare(first_monom, second_monom):
 	return lex_common(first_monom, second_monom, reversed(string.ascii_letters))
+'''
+Returns constant part of monom.
 
+[in]		monom
+	monom
+
+[returns]	constant
+	single number
+'''
 def constant(monom):
 	if monom == K_ZERO_MONOM:
 		return 0;
@@ -31,7 +48,16 @@ def constant(monom):
 	return 1
 
 '''
+Returns multiorder of monom.
 
+[in]		monom
+	monom
+
+[in]		all_degrees
+	if True list of multiorder will contain zeroes; if not defined assumed False
+
+[returns]	multiorder
+	list representing multiorder of monom
 '''
 def multiorder(monom, all_degrees=False):
 	result = []
