@@ -271,6 +271,14 @@ def leading_term(poly, order):
 	tmp.sort(cmp=order)
 	return tmp[0]
 
+def leading_monom(poly, order):
+	if len(poly) == 0:
+		return copy.deepcopy(K_ZERO_MONOM)
+	lt = leading_term(poly, order)
+	if K_NAME_FOR_CONSTANT in lt:
+		del lt[K_NAME_FOR_CONSTANT]
+	return lt
+
 '''
 Multiplies two monoms
 
@@ -411,40 +419,132 @@ def poly_divide(poly, poly_list, order=lex_compare):
 			h = minus(h, [h_leading_term])
 	return (quotient, remainder)
 
-monom1 = {};
-monom2 = {};
-monom3 = {};
-monom4 = {};
+'''
+Finds greatest common divisor for two numbers
 
-monom1["x"] = 2
-monom1["y"] = 1
+[in]		a
+	integer number
 
-monom2["x"] = 1
-monom2["y"] = 2
+[in]		b
+	integer number
 
-monom3["y"] = 2
+[returns]	result
+	integer number, greatest common divisor of a and b
+'''
+def int_greatest_common_divisor(a, b):
+	if a<b:
+		(a, b) = (b, a)
+	while b != 0:
+		tmp = a
+		a = b
+		b = tmp % b
+	return a
 
-monom4[K_NAME_FOR_CONSTANT] = 8
-monom4["x"] = 1
-monom4["y"] = 2
-monom4["z"] = 3
+'''
+Finds least common multiple for two numbers
 
-polinom_f  = [ {"x":2, "y":1}, {"x":1, "y":2},          {"y":2} ]
-polinom_f1 = [ {"x":1, "y":1}, {K_NAME_FOR_CONSTANT:-1} ]
-polinom_f2 = [ {"y":2},        {K_NAME_FOR_CONSTANT:-1} ]
+[in]		a
+	integer number
 
-poly1 = [monom1, monom2];
-poly2 = [monom1, monom2];
-#print_poly(poly1, True, True)
-#print_poly(poly2, True, True)
-print_poly(polinom_f, True)
-print_poly(polinom_f1, True)
-print_poly(polinom_f2, True)
+[in]		b
+	integer number
+
+[returns]	result
+	number, least common multiple
+'''
+def int_least_common_multiple(a, b):
+	return a*b/int_greatest_common_divisor(a, b)
+
+'''
+Finds least common multiple for two monoms
+
+[in]		monom_a
+	monom
+
+[in]		monom_b
+	monom
+
+[returns]	result
+	monom, LCM(monom_a, monom_b)
+'''
+def monom_least_common_multiple(monom_a, monom_b):
+	result = copy.deepcopy(K_ZERO_MONOM)
+	
+	constant_a = constant(monom_a)
+	constant_b = constant(monom_b)
+	constant_r = int_least_common_multiple(constant_a, constant_b)
+	if not constant_r == 1:
+		result[K_NAME_FOR_CONSTANT] = constant_r
+	for variable in VARIABLE_DOMAIN:
+		order_r = max(order_of(monom_a, variable), order_of(monom_b, variable))
+		if not order_r == 0:
+			result[variable] = order_r
+	return result
+
+'''
+Finds greatest common divisor for two monoms
+
+[in]		monom_a
+	monom
+
+[in]		monom_b
+	monom
+
+[returns]	result
+	monom, GCD(monom_a, monom_b)
+'''
+def monom_greatest_common_divisor(monom_a, monom_b):
+	result = copy.deepcopy(K_ZERO_MONOM)
+
+	constant_a = constant(monom_a)
+	constant_b = constant(monom_b)
+
+	constant_r = int_greatest_common_divisor(constant_a, constant_b)
+	if constant_r != 1:
+		result[K_NAME_FOR_CONSTANT] = constant_r
+
+	for variable in VARIABLE_DOMAIN:
+		order_r = min(order_of(monom_a, variable), order_of(monom_b, variable))
+		if not order_r == 0:
+			result[variable] = order_r
+	return result
+'''
+Finds syzygi polynomial of two polynomials in given order
+'''
+def syzygi_poly(poly_a, poly_b, order=lex_compare):
+	lm_a = leading_monom(poly_a, order)
+	lm_b = leading_monom(poly_b, order)
+	lcm = monom_least_common_multiple(lm_a, lm_b)
+	m_a = monom_divide(lcm, leading_term(poly_a, order))
+	m_b = monom_divide(lcm, leading_term(poly_b, order))
+	return minus(poly_monom_multiply(m_a, poly_a), poly_monom_multiply(m_b, poly_b))
+
+def groebner_basis(poly_list, order):
+	gb = copy.deepcopy(poly_list)
+	while True:
+		g_prim = gb
+		for p_index in range(len(g_prim)):
+			p = g_prim[p_index]
+			for q_index in range(p_index+1, len(g_prim)):
+				q = g_prim[q_index]
+				s = syzygi_poly(p, q, order)
+				(_, h) = poly_divide(s, g_prim, order)
+				if h!= K_ZERO_POLY:
+					gb.append(h)
+		if (g_prim == gb):
+			break;
+	return gb
+
+
+poly_1 = [{"x":2, "z":1}, {K_NAME_FOR_CONSTANT:-1, "y":2}]
+poly_2 = [{"y":1, "z":2}, {"z":1}]
+poly_3 = [{"y":1}, {K_NAME_FOR_CONSTANT:-1, "z":1}]
+
+print_poly(poly_1, True)
+print_poly(poly_2, True)
+print_poly(poly_3, True)
+#print_poly(syzygi_poly(poly_1, poly_2), True)
 print
-(quotients, remainder) = poly_divide(polinom_f, [polinom_f1, polinom_f2], order=lex_compare)
-
-def print_poly_simple(poly):
-	print_poly(poly, True, False)
-
-map(print_poly_simple, quotients)
-print_poly(remainder, True, False)
+gb = groebner_basis([poly_1, poly_2, poly_3], lex_compare)
+for poly in gb:
+	print_poly(poly, True)
