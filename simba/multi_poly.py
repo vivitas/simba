@@ -4,6 +4,7 @@ import copy
 K_NAME_FOR_CONSTANT = " "
 K_ZERO_MONOM = {}
 K_ZERO_POLY = []
+VARIABLE_DOMAIN = string.ascii_letters
 
 '''
 Common code used by both lex_compare and inverse_lex_compare
@@ -24,13 +25,13 @@ def lex_common(first_monom, second_monom, variable_order):
 Comparator function used to sort monomials in lex order
 '''
 def lex_compare(first_monom, second_monom):
-	return lex_common(first_monom, second_monom, string.ascii_letters)
+	return lex_common(first_monom, second_monom, VARIABLE_DOMAIN)
 
 '''
 Comparator function used to sort monomials in inverse lex order.
 '''
 def inverse_lex_compare(first_monom, second_monom):
-	return lex_common(first_monom, second_monom, reversed(string.ascii_letters))
+	return lex_common(first_monom, second_monom, reversed(VARIABLE_DOMAIN))
 '''
 Returns constant part of monom.
 
@@ -62,7 +63,7 @@ Returns multiorder of monom.
 def multiorder(monom, all_degrees=False):
 	result = []
 	if all_degrees:
-		variable_pool = string.ascii_letters
+		variable_pool = VARIABLE_DOMAIN
 	else:
 		variable_pool = monom
 	for variable in variable_pool:
@@ -178,7 +179,7 @@ def print_monome(monom, new_line=False, print_sorted=True):
 		if monom[K_NAME_FOR_CONSTANT] != 0:
 			print(monom[K_NAME_FOR_CONSTANT]),
 	if print_sorted:
-		print_from = string.ascii_letters
+		print_from = VARIABLE_DOMAIN
 	else:
 		print_from = monom
 	for variable in print_from:
@@ -284,7 +285,7 @@ Multiplies two monoms
 '''
 def monom_multiply(monom_a, monom_b):
 	result = copy.deepcopy(K_ZERO_MONOM)
-	for variable in string.ascii_letters:
+	for variable in VARIABLE_DOMAIN:
 		to_add = order_of(monom_a, variable) + order_of(monom_b, variable)
 		if to_add == 0:
 			continue
