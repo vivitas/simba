@@ -518,11 +518,13 @@ def syzygi_poly(poly_a, poly_b, order=lex_compare):
 	m_a = monom_divide(lcm, leading_term(poly_a, order))
 	m_b = monom_divide(lcm, leading_term(poly_b, order))
 	return minus(poly_monom_multiply(m_a, poly_a), poly_monom_multiply(m_b, poly_b))
-
+'''
+Finds groenber basis for list of polynomials in given order
+'''
 def groebner_basis(poly_list, order):
 	gb = copy.deepcopy(poly_list)
 	while True:
-		g_prim = gb
+		g_prim = copy.deepcopy(gb)
 		for p_index in range(len(g_prim)):
 			p = g_prim[p_index]
 			for q_index in range(p_index+1, len(g_prim)):
@@ -536,15 +538,19 @@ def groebner_basis(poly_list, order):
 	return gb
 
 
-poly_1 = [{"x":2, "z":1}, {K_NAME_FOR_CONSTANT:-1, "y":2}]
-poly_2 = [{"y":1, "z":2}, {"z":1}]
-poly_3 = [{"y":1}, {K_NAME_FOR_CONSTANT:-1, "z":1}]
+poly_1 = [{K_NAME_FOR_CONSTANT:2, "x":1}, {"y":1}, {K_NAME_FOR_CONSTANT:-1, "z":1}, {K_NAME_FOR_CONSTANT:-8}]
+poly_2 = [{K_NAME_FOR_CONSTANT:-3, "x":1}, {K_NAME_FOR_CONSTANT:-1, "y":1}, {K_NAME_FOR_CONSTANT:2, "z":1}, {K_NAME_FOR_CONSTANT:11}]
+poly_3 = [{K_NAME_FOR_CONSTANT:-2, "x":1}, {"y":1}, {K_NAME_FOR_CONSTANT:2, "z":1}, {K_NAME_FOR_CONSTANT:3}]
+
+poly_5 = [{K_NAME_FOR_CONSTANT:+2.0, "x":1}, {K_NAME_FOR_CONSTANT:-1.0, "y":1}, {K_NAME_FOR_CONSTANT:+3.0, "z":1}, {K_NAME_FOR_CONSTANT:+1.0}]
+poly_6 = [{K_NAME_FOR_CONSTANT:+1.0, "x":1}, {K_NAME_FOR_CONSTANT:+2.0, "y":1}, {K_NAME_FOR_CONSTANT:-4.0, "z":1}, {K_NAME_FOR_CONSTANT:-5.0}]
+poly_7 = [{K_NAME_FOR_CONSTANT:+3.0, "x":1}, {K_NAME_FOR_CONSTANT:+1.0, "y":1}, {K_NAME_FOR_CONSTANT:+2.0, "z":1}, {K_NAME_FOR_CONSTANT:-1.0}]
 
 print_poly(poly_1, True)
 print_poly(poly_2, True)
 print_poly(poly_3, True)
-#print_poly(syzygi_poly(poly_1, poly_2), True)
+print_poly(syzygi_poly(poly_1, poly_2), True)
 print
-gb = groebner_basis([poly_1, poly_2, poly_3], lex_compare)
+gb = groebner_basis([poly_5, poly_6, poly_7], lex_compare)
 for poly in gb:
 	print_poly(poly, True)
