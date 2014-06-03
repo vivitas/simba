@@ -537,6 +537,39 @@ def groebner_basis(poly_list, order):
 			break;
 	return gb
 
+def minimize_groebner_basis(poly_list, order=lex_compare):
+	reduced_groebner = copy.deepcopy(poly_list)
+
+	changes = True
+	while changes:
+		changes = False
+		check = copy.deepcopy(reduced_groebner)
+		for poly in check:
+			for second in check:
+				if second == poly:
+					continue
+				poly_lt = leading_term(poly, order)
+				second_lt = leading_term(second, order)
+				if divides(poly_lt, second_lt):
+					changes = True
+					break
+			reduced_groebner = [x for x in reduced_groebner if not x==poly]
+			if not changes:
+				(_, remainder) = poly_divide(poly, reduced_groebner, order)
+				reduced_groebner.append(remainder)
+			else:
+				break
+	return reduced_groebner
+
+def norm(poly, order=lex_compare):
+	poly_lt = leading_term(poly, order)
+	coef = constant(poly_lt)
+	poly_copy = []
+	for monom in poly:
+		monom_copy = copy.deepcopy(monom)
+		monom_copy[K_NAME_FOR_CONSTANT] = constant(monom_copy)/coef
+		poly_copy.append(monom_copy)
+	return poly_copy
 
 poly_1 = [{K_NAME_FOR_CONSTANT:2, "x":1}, {"y":1}, {K_NAME_FOR_CONSTANT:-1, "z":1}, {K_NAME_FOR_CONSTANT:-8}]
 poly_2 = [{K_NAME_FOR_CONSTANT:-3, "x":1}, {K_NAME_FOR_CONSTANT:-1, "y":1}, {K_NAME_FOR_CONSTANT:2, "z":1}, {K_NAME_FOR_CONSTANT:11}]
@@ -546,11 +579,19 @@ poly_5 = [{K_NAME_FOR_CONSTANT:+2.0, "x":1}, {K_NAME_FOR_CONSTANT:-1.0, "y":1}, 
 poly_6 = [{K_NAME_FOR_CONSTANT:+1.0, "x":1}, {K_NAME_FOR_CONSTANT:+2.0, "y":1}, {K_NAME_FOR_CONSTANT:-4.0, "z":1}, {K_NAME_FOR_CONSTANT:-5.0}]
 poly_7 = [{K_NAME_FOR_CONSTANT:+3.0, "x":1}, {K_NAME_FOR_CONSTANT:+1.0, "y":1}, {K_NAME_FOR_CONSTANT:+2.0, "z":1}, {K_NAME_FOR_CONSTANT:-1.0}]
 
-print_poly(poly_1, True)
-print_poly(poly_2, True)
-print_poly(poly_3, True)
-print_poly(syzygi_poly(poly_1, poly_2), True)
-print
+#print_poly(poly_1, True)
+#print_poly(poly_2, True)
+#print_poly(poly_3, True)
+#print_poly(syzygi_poly(poly_1, poly_2), True)
+#print
 gb = groebner_basis([poly_5, poly_6, poly_7], lex_compare)
+for poly in gb:
+	print_poly(poly, True)
+print
+gb = minimize_groebner_basis(gb, lex_compare)
+for poly in gb:
+	print_poly(poly, True)
+print
+gb = [norm(poly, lex_compare) for poly in gb]
 for poly in gb:
 	print_poly(poly, True)
